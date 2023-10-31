@@ -1,15 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import Text
 from tkinter import filedialog
-from tkinter import scrolledtext
 from datetime import datetime
-import tkinter.font as font
 
 ventana = tk.Tk()
 ventana.title("Editor de Texto")
 
-block_de_texto = scrolledtext.ScrolledText(ventana, wrap="word")
-block_de_texto.pack(fill="both", expand=False)
+block_de_texto = Text(ventana,wrap='word')
+block_de_texto.pack(side='top',fill='both',expand=True)
 
 barra_menu = tk.Menu(ventana)
 ventana.config(menu=barra_menu)
@@ -84,7 +83,7 @@ fuente_seleccionada = tk.StringVar(value=fuentes_comunes[0])
 tamaño_fuente_actual = 12 # Selector de tamaño de fuente Tamaño de fuente inicial
 def cambiar_tamaño_fuente(numero,tamaño_fuente_actual):
     tamaño_editado=tamaño_fuente_actual+numero
-    Desired_font = font.Font( size = tamaño_editado) 
+    Desired_font = tk.font.Font( size = tamaño_editado) 
     block_de_texto.configure(font = Desired_font)
 
 def cambiar_fuente():
