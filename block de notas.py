@@ -14,7 +14,7 @@ fuente_original = tkFont.nametofont("TkDefaultFont")
 
 def cambiar_logo():
     try:
-        icon_image = tk.PhotoImage(file="cfl_logo.png")  # Replace "cfl-logo.png" with your image file name
+        icon_image = tk.PhotoImage(file="cfl_logo.png")
         ventana.iconphoto(False, icon_image)
     except:
         pass
@@ -34,10 +34,10 @@ def remplazar_dato_de_columna(index_columna, nueva_data):
             writer = csv.writer(file)
             writer.writerows(rows)
         
-        return True  # Successful update
+        return True
     except Exception as e:
         print(f"Error: {e}")
-        return False  # Update failed
+        return False
 
 fuente_modificada = tkFont.Font(family="Verdana", size=12)
 fuente_original = tkFont.nametofont("TkDefaultFont")
@@ -134,11 +134,11 @@ def cambiar_tamaño_fuente(numero):
         block_de_texto.configure(font=fuente_modificada)
         remplazar_dato_de_columna(1,tamaño_actual)
 
-def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opciones
+def buscar_fuentes_locales():
     fuente_familia = tkFont.families()
     lista_familia_eleccion=[]
     for f in fuente_familia:
-        # print(f)
+        
         lista_familia_eleccion.append(f)
     return lista_familia_eleccion
 
@@ -154,7 +154,6 @@ menu_formato.add_command(label="Times New Roman", command=lambda: cambiar_fuente
 menu_formato.add_command(label="Courier New", command=lambda: cambiar_fuente('Courier New'))
 menu_formato.add_command(label="Verdana", command=lambda: cambiar_fuente('Verdana'))
 menu_formato.add_command(label="Calibri", command=lambda: cambiar_fuente('Calibri'))
-menu_formato.add_command(label="Helvetica", command=lambda: cambiar_fuente('Helvetica'))
 menu_formato.add_command(label="Georgia", command=lambda: cambiar_fuente('Georgia'))
 menu_formato.add_command(label="Comic Sans MS", command=lambda: cambiar_fuente('Comic Sans MS'))
 menu_formato.add_command(label="Tahoma", command=lambda: cambiar_fuente('Tahoma'))
@@ -247,7 +246,7 @@ def leer_configuracion():
 
         
     except FileNotFoundError:
-        # Create the configuration file with default values if it doesn't exist
+        
         with open(config_file, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([archivo_configuracion["fuente"], archivo_configuracion["tamaño"], archivo_configuracion["tema"]])
@@ -267,10 +266,10 @@ def remplazar_dato_de_columna(index_columna, nueva_data):
             writer = csv.writer(file)
             writer.writerows(rows)
         
-        return True  # Successful update
+        return True 
     except Exception as e:
         print(f"Error: {e}")
-        return False  # Update failed
+        return False 
 
 actualizar_barra_estado()
 
