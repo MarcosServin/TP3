@@ -4,11 +4,14 @@ from tkinter import Text
 import tkinter.font as tkFont
 from tkinter import filedialog
 from datetime import datetime
-from tkinter import simpledialog
-from tkinter.simpledialog import Dialog
+import csv
 
 ventana = tk.Tk()
 ventana.title("Editor de Texto")
+
+fuente_modificada = tkFont.Font(family="Verdana", size=12)
+fuente_original = tkFont.nametofont("TkDefaultFont")
+
 def cambiar_logo():
     try:
         icon_image = tk.PhotoImage(file="cfl_logo.png")  # Replace "cfl-logo.png" with your image file name
@@ -16,6 +19,26 @@ def cambiar_logo():
     except:
         pass
 cambiar_logo()
+
+def remplazar_dato_de_columna(index_columna, nueva_data):
+    ruta_archivo="opciones.csv"
+    try:
+        with open(ruta_archivo, 'r', newline='') as file:
+            rows = list(csv.reader(file))
+        
+        for row in rows:
+            if 0 <=index_columna < len(row):
+                row[index_columna] = nueva_data
+        
+        with open(ruta_archivo, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(rows)
+        
+        return True  # Successful update
+    except Exception as e:
+        print(f"Error: {e}")
+        return False  # Update failed
+
 fuente_modificada = tkFont.Font(family="Verdana", size=12)
 fuente_original = tkFont.nametofont("TkDefaultFont")
 
@@ -51,13 +74,13 @@ def abrir_archivo():
 
 
 def guardar_archivo():
-    file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
-    if file_path:
+    ruta_archivo = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+    if ruta_archivo:
         try:
-            with open(file_path, 'w') as file:
+            with open(ruta_archivo, 'w') as file:
                 text_content = block_de_texto.get("1.0", "end-1c")
                 file.write(text_content)
-            mensaje_de_pantalla.config(text=f"File saved: {file_path}")
+            mensaje_de_pantalla.config(text=f"File saved: {ruta_archivo}")
         except Exception as e:
             mensaje_de_pantalla.config(text=f"Error saving file: {str(e)}")
         actualizar_barra_estado()
@@ -109,7 +132,7 @@ def cambiar_tamaño_fuente(numero):
         tamaño_actual += numero
         fuente_modificada.configure(size=tamaño_actual)
         block_de_texto.configure(font=fuente_modificada)
-    # print(tamaño_actual)
+        remplazar_dato_de_columna(1,tamaño_actual)
 
 def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opciones
     fuente_familia = tkFont.families()
@@ -124,17 +147,34 @@ opciones_de_fuentes=buscar_fuentes_locales()
 def cambiar_fuente(familia):
     fuente_modificada.configure(family=familia)
     block_de_texto.configure(font=fuente_modificada)
+    remplazar_dato_de_columna(0,familia)
 
 menu_formato.add_command(label="Arial", command=lambda: cambiar_fuente("Arial"))
 menu_formato.add_command(label="Times New Roman", command=lambda: cambiar_fuente("Times New Roman"))
 menu_formato.add_command(label="Courier New", command=lambda: cambiar_fuente('Courier New'))
 menu_formato.add_command(label="Verdana", command=lambda: cambiar_fuente('Verdana'))
-menu_formato.add_command(label="Calibri", command=lambda: cambiar_fuente('calibri'))
+menu_formato.add_command(label="Calibri", command=lambda: cambiar_fuente('Calibri'))
+menu_formato.add_command(label="Helvetica", command=lambda: cambiar_fuente('Helvetica'))
+menu_formato.add_command(label="Georgia", command=lambda: cambiar_fuente('Georgia'))
+menu_formato.add_command(label="Comic Sans MS", command=lambda: cambiar_fuente('Comic Sans MS'))
+menu_formato.add_command(label="Tahoma", command=lambda: cambiar_fuente('Tahoma'))
+menu_formato.add_command(label="Trebuchet MS", command=lambda: cambiar_fuente('Trebuchet MS'))
+
 
 menu_tamaño = tk.Menu(barra_menu, tearoff=0)
 barra_menu.add_cascade(label="Tamaño", menu=menu_tamaño)
 menu_tamaño.add_command(label="Aumentar Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(2))
 menu_tamaño.add_command(label="Disminuir Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(-2))
+
+def cambiar_tema(tema_color):
+    if tema_color=="claro":
+        cambiar_tema_claro()
+    if tema_color=="oscuro":
+        cambiar_tema_oscuro()
+    if tema_color=="verde":
+        cambiar_tema_verde()
+    remplazar_dato_de_columna(2,tema_color)
+    
 
 def cambiar_tema_claro():
     block_de_texto.configure(bg="#fffbfd", fg="#262626")
@@ -153,7 +193,7 @@ def cambiar_tema_oscuro():
     menu_edicion.configure(bg="#262626", fg="#fffbfd")
 
 def cambiar_tema_verde():
-    block_de_texto.configure(bg="#e6ffe6", fg="#316431")
+    block_de_texto.configure(bg="#e6ffe6", fg="#216421")
     barra_estado.configure(bg="#b4ffb4", fg="#316431")
     menu_formato.configure(bg="#b4ffb4", fg="#316431")
     menu_tamaño.configure(bg="#b4ffb4", fg="#316431")
@@ -163,9 +203,9 @@ def cambiar_tema_verde():
 
 menu_tema = tk.Menu(barra_menu,tearoff=0)
 barra_menu.add_cascade(label="Tema",menu=menu_tema)
-menu_tema.add_command(label="Claro",command=lambda:cambiar_tema_claro())
-menu_tema.add_command(label="Oscuro",command=lambda:cambiar_tema_oscuro())
-menu_tema.add_command(label="CFL",command=lambda:cambiar_tema_verde())
+menu_tema.add_command(label="Claro",command=lambda:cambiar_tema("claro"))
+menu_tema.add_command(label="Oscuro",command=lambda:cambiar_tema("oscuro"))
+menu_tema.add_command(label="CFL",command=lambda:cambiar_tema("verde"))
 
 
 barra_estado = tk.Label(ventana, text="", padx=20, pady=10)
@@ -180,6 +220,57 @@ def actualizar_barra_estado():
     texto_estado = f"Caracteres: {cantidad_caracteres} | Tamaño de Fuente: {tamaño_fuente} | Fuente: {nombre_fuente} | Hora: {hora_actual}"
     barra_estado.config(text=texto_estado)
     ventana.after(20, actualizar_barra_estado)
+
+
+def leer_configuracion():
+    config_file = "opciones.csv"
+    fuente=""
+    tamaño=12
+    tema="claro"
+    archivo_configuracion = {
+        "fuente": "Arial",
+        "tamaño": "12",
+        "tema": "claro"
+                        }
+    try:
+        with open(config_file, 'r', newline='') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if len(row) == 3:
+                    font_family, font_size, theme = row
+            fuente=font_family
+            tamaño=int(font_size)
+            tema=theme
+            fuente_modificada.configure(size=tamaño,family=fuente)
+            block_de_texto.configure(font=fuente_modificada)
+        cambiar_tema(tema)                                    
+
+        
+    except FileNotFoundError:
+        # Create the configuration file with default values if it doesn't exist
+        with open(config_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([archivo_configuracion["fuente"], archivo_configuracion["tamaño"], archivo_configuracion["tema"]])
+leer_configuracion()
+
+def remplazar_dato_de_columna(index_columna, nueva_data):
+    ruta_archivo="opciones.csv"
+    try:
+        with open(ruta_archivo, 'r', newline='') as file:
+            rows = list(csv.reader(file))
+        
+        for row in rows:
+            if 0 <=index_columna < len(row):
+                row[index_columna] = nueva_data
+        
+        with open(ruta_archivo, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(rows)
+        
+        return True  # Successful update
+    except Exception as e:
+        print(f"Error: {e}")
+        return False  # Update failed
 
 actualizar_barra_estado()
 
