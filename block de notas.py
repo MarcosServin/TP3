@@ -4,11 +4,19 @@ from tkinter import Text
 import tkinter.font as tkFont
 from tkinter import filedialog
 from datetime import datetime
+from tkinter import simpledialog
+from tkinter.simpledialog import Dialog
 
 ventana = tk.Tk()
 ventana.title("Editor de Texto")
-
-fuente_modificada = tkFont.Font(family="Verdana", size=10)
+def cambiar_logo():
+    try:
+        icon_image = tk.PhotoImage(file="cfl_logo.png")  # Replace "cfl-logo.png" with your image file name
+        ventana.iconphoto(False, icon_image)
+    except:
+        pass
+cambiar_logo()
+fuente_modificada = tkFont.Font(family="Verdana", size=12)
 fuente_original = tkFont.nametofont("TkDefaultFont")
 
 frame_de_texto = tk.Frame(ventana)
@@ -121,23 +129,47 @@ menu_formato.add_command(label="Arial", command=lambda: cambiar_fuente("Arial"))
 menu_formato.add_command(label="Times New Roman", command=lambda: cambiar_fuente("Times New Roman"))
 menu_formato.add_command(label="Courier New", command=lambda: cambiar_fuente('Courier New'))
 menu_formato.add_command(label="Verdana", command=lambda: cambiar_fuente('Verdana'))
-menu_formato.add_command(label="calibri", command=lambda: cambiar_fuente('calibri'))
+menu_formato.add_command(label="Calibri", command=lambda: cambiar_fuente('calibri'))
 
-menu_formato.add_command(label="Aumentar Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(2))
-menu_formato.add_command(label="Disminuir Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(-2))
+menu_tamaño = tk.Menu(barra_menu, tearoff=0)
+barra_menu.add_cascade(label="Tamaño", menu=menu_tamaño)
+menu_tamaño.add_command(label="Aumentar Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(2))
+menu_tamaño.add_command(label="Disminuir Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(-2))
 
 def cambiar_tema_claro():
-    block_de_texto.configure(bg="#fffbfd",fg="#262626")
+    block_de_texto.configure(bg="#fffbfd", fg="#262626")
+    barra_estado.configure(bg="#fffbfd", fg="#262626")
+    menu_formato.configure(bg="#fffbfd", fg="#262626")
+    menu_tema.configure(bg="#fffbfd", fg="#262626")
+    menu_archivo.configure(bg="#fffbfd", fg="#262626")
+    menu_edicion.configure(bg="#fffbfd", fg="#262626")
+
 def cambiar_tema_oscuro():
-    block_de_texto.configure(bg="#262626",fg="#fffbfd")
+    block_de_texto.configure(bg="#262626", fg="#fffbfd")
+    barra_estado.configure(bg="#262626", fg="#fffbfd")
+    menu_formato.configure(bg="#262626", fg="#fffbfd")
+    menu_tema.configure(bg="#262626", fg="#fffbfd")
+    menu_archivo.configure(bg="#262626", fg="#fffbfd")
+    menu_edicion.configure(bg="#262626", fg="#fffbfd")
+
+def cambiar_tema_verde():
+    block_de_texto.configure(bg="#e6ffe6", fg="#316431")
+    barra_estado.configure(bg="#b4ffb4", fg="#316431")
+    menu_formato.configure(bg="#b4ffb4", fg="#316431")
+    menu_tamaño.configure(bg="#b4ffb4", fg="#316431")
+    menu_tema.configure(bg="#b4ffb4", fg="#316431")
+    menu_archivo.configure(bg="#b4ffb4", fg="#316431")
+    menu_edicion.configure(bg="#b4ffb4", fg="#316431")
 
 menu_tema = tk.Menu(barra_menu,tearoff=0)
 barra_menu.add_cascade(label="Tema",menu=menu_tema)
 menu_tema.add_command(label="Claro",command=lambda:cambiar_tema_claro())
 menu_tema.add_command(label="Oscuro",command=lambda:cambiar_tema_oscuro())
+menu_tema.add_command(label="CFL",command=lambda:cambiar_tema_verde())
 
-barra_estado = ttk.Label(ventana, text="")
-barra_estado.grid(row=1, column=0)
+
+barra_estado = tk.Label(ventana, text="", padx=20, pady=10)
+barra_estado.grid(row=1, column=0, sticky="ew")
 barra_estado.config(font=("Arial", 10))
 
 def actualizar_barra_estado():
