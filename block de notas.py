@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import Text
 import tkinter.font as tkFont
 from tkinter import filedialog
 from datetime import datetime
