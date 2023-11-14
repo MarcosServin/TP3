@@ -152,10 +152,9 @@ def cambiar_tamaño_fuente(numero):#aumenta o disminuye el tamaño de la fuente 
         block_de_texto.configure(font=fuente_modificada)
         actualizar_configuracion(1,tamaño_actual)
 
-menu_tamaño = tk.Menu(barra_menu, tearoff=0)
-barra_menu.add_cascade(label="Tamaño", menu=menu_tamaño)
-menu_tamaño.add_command(label="Aumentar Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(2))
-menu_tamaño.add_command(label="Disminuir Tamaño de Fuente", command=lambda: cambiar_tamaño_fuente(-2))
+barra_menu.add_command(label="A ↑", command=lambda: cambiar_tamaño_fuente(2))
+barra_menu.add_command(label="a ↓", command=lambda: cambiar_tamaño_fuente(-2))
+barra_menu.add_command(label="Negrita", command=lambda: cambiar_tamaño_fuente(-2))
 
 def cambiar_tema(tema_color):#Corre una función distinta para cada tema
     if tema_color=="claro":
@@ -171,7 +170,7 @@ def cambiar_tema_claro():
     block_de_texto.configure(bg="#fffbfd", fg="#262626",insertbackground="black",selectbackground="grey",selectforeground="#fffbfd")
     barra_estado.configure(bg="#fffbfd", fg="#262626")
     menu_formato.configure(bg="#fffbfd", fg="#262626")
-    menu_tamaño.configure(bg="#fffbfd", fg="#262626")
+    # menu_tamaño.configure(bg="#fffbfd", fg="#262626")
     menu_tema.configure(bg="#fffbfd", fg="#262626")
     menu_archivo.configure(bg="#fffbfd", fg="#262626")
     menu_edicion.configure(bg="#fffbfd", fg="#262626")
@@ -180,7 +179,7 @@ def cambiar_tema_oscuro():
     block_de_texto.configure(bg="#262626", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
     barra_estado.configure(bg="#262626", fg="#fffbfd")
     menu_formato.configure(bg="#262626", fg="#fffbfd")
-    menu_tamaño.configure(bg="#262626", fg="#fffbfd")
+    # menu_tamaño.configure(bg="#262626", fg="#fffbfd")
     menu_tema.configure(bg="#262626", fg="#fffbfd")
     menu_archivo.configure(bg="#262626", fg="#fffbfd")
     menu_edicion.configure(bg="#262626", fg="#fffbfd")
@@ -189,7 +188,7 @@ def cambiar_tema_verde():
     block_de_texto.configure(bg="#e6ffe6", fg="#216421",insertbackground="green",selectbackground="#216421",selectforeground="#e6ffe6")
     barra_estado.configure(bg="#b4ffb4", fg="#316431")
     menu_formato.configure(bg="#b4ffb4", fg="#316431")
-    menu_tamaño.configure(bg="#b4ffb4", fg="#316431")
+    # menu_tamaño.configure(bg="#b4ffb4", fg="#316431")
     menu_tema.configure(bg="#b4ffb4", fg="#316431")
     menu_archivo.configure(bg="#b4ffb4", fg="#316431")
     menu_edicion.configure(bg="#b4ffb4", fg="#316431")
@@ -220,6 +219,15 @@ def actualizar_barra_estado():
 def mostrar_menu_contextual(event):
     menu_edicion.post(event.x_root, event.y_root)
 block_de_texto.bind("<Button-3>", mostrar_menu_contextual)
+
+def aumentar(event):
+    cambiar_tamaño_fuente(2)
+
+def disminuir(event):
+    cambiar_tamaño_fuente(-2)
+    
+block_de_texto.bind("<Control-minus>",disminuir)
+block_de_texto.bind("<Control-plus>",aumentar)
 
 #si el archivo opciones existe,carga los datos relacionados a la fuente,si no existe lo crea
 def leer_configuracion():
