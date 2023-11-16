@@ -135,10 +135,17 @@ def cambiar_fuente(familia):
 
 #crea el menu formato
 menu_formato = tk.Menu(barra_menu, tearoff=0)
-barra_menu.add_cascade(label="Formato", menu=menu_formato)
+barra_menu.add_cascade(label="Fuente", menu=menu_formato)
 
-lista_fuentes = ["Arial", "Times New Roman", "Courier New", "Verdana", "Calibri", "Georgia", "Comic Sans MS", "Tahoma", "Trebuchet MS"]
+def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opciones
+    fuente_familia = tkFont.families()
+    lista_familia_eleccion=[]
+    for f in fuente_familia:
+        lista_familia_eleccion.append(f)
+    lista_familia_eleccion=sorted(lista_familia_eleccion)
+    return lista_familia_eleccion
 
+lista_fuentes = buscar_fuentes_locales()
 #por cada fuente en la lista crea un boton con comando que ejecuta la funcion de cambiar la familia-fuente
 for nombre_fuente in lista_fuentes:
     menu_formato.add_command(label=nombre_fuente, command=lambda name=nombre_fuente: cambiar_fuente(name))
@@ -154,15 +161,17 @@ def cambiar_tamaño_fuente(numero):#aumenta o disminuye el tamaño de la fuente 
 
 barra_menu.add_command(label="A ↑", command=lambda: cambiar_tamaño_fuente(2))
 barra_menu.add_command(label="a ↓", command=lambda: cambiar_tamaño_fuente(-2))
-barra_menu.add_command(label="Negrita", command=lambda: cambiar_tamaño_fuente(-2))
 
 def cambiar_tema(tema_color):#Corre una función distinta para cada tema
     if tema_color=="claro":
         cambiar_tema_claro()
-    if tema_color=="oscuro":
+    elif tema_color=="oscuro":
         cambiar_tema_oscuro()
-    if tema_color=="verde":
+    elif tema_color=="verde":
         cambiar_tema_verde()
+    elif tema_color=="negro":
+        cambiar_tema_negro()
+
     actualizar_configuracion(2,tema_color)#Actualiza el archivo de configuraciónes con el tema elegído
 
 #cambia el color de fondo,caracteres,cursor de texto,fondo seleccionado,caracter seleccionado
@@ -170,7 +179,6 @@ def cambiar_tema_claro():
     block_de_texto.configure(bg="#fffbfd", fg="#262626",insertbackground="black",selectbackground="grey",selectforeground="#fffbfd")
     barra_estado.configure(bg="#fffbfd", fg="#262626")
     menu_formato.configure(bg="#fffbfd", fg="#262626")
-    # menu_tamaño.configure(bg="#fffbfd", fg="#262626")
     menu_tema.configure(bg="#fffbfd", fg="#262626")
     menu_archivo.configure(bg="#fffbfd", fg="#262626")
     menu_edicion.configure(bg="#fffbfd", fg="#262626")
@@ -179,16 +187,22 @@ def cambiar_tema_oscuro():
     block_de_texto.configure(bg="#262626", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
     barra_estado.configure(bg="#262626", fg="#fffbfd")
     menu_formato.configure(bg="#262626", fg="#fffbfd")
-    # menu_tamaño.configure(bg="#262626", fg="#fffbfd")
     menu_tema.configure(bg="#262626", fg="#fffbfd")
     menu_archivo.configure(bg="#262626", fg="#fffbfd")
     menu_edicion.configure(bg="#262626", fg="#fffbfd")
+
+def cambiar_tema_negro():
+    block_de_texto.configure(bg="black", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
+    barra_estado.configure(bg="black", fg="#fffbfd")
+    menu_formato.configure(bg="black", fg="#fffbfd")
+    menu_tema.configure(bg="black", fg="#fffbfd")
+    menu_archivo.configure(bg="black", fg="#fffbfd")
+    menu_edicion.configure(bg="black", fg="#fffbfd")
 
 def cambiar_tema_verde():
     block_de_texto.configure(bg="#e6ffe6", fg="#216421",insertbackground="green",selectbackground="#216421",selectforeground="#e6ffe6")
     barra_estado.configure(bg="#b4ffb4", fg="#316431")
     menu_formato.configure(bg="#b4ffb4", fg="#316431")
-    # menu_tamaño.configure(bg="#b4ffb4", fg="#316431")
     menu_tema.configure(bg="#b4ffb4", fg="#316431")
     menu_archivo.configure(bg="#b4ffb4", fg="#316431")
     menu_edicion.configure(bg="#b4ffb4", fg="#316431")
@@ -199,6 +213,7 @@ barra_menu.add_cascade(label="Tema",menu=menu_tema)
 menu_tema.add_command(label="Claro",command=lambda:cambiar_tema("claro"))
 menu_tema.add_command(label="Oscuro",command=lambda:cambiar_tema("oscuro"))
 menu_tema.add_command(label="CFL",command=lambda:cambiar_tema("verde"))
+menu_tema.add_command(label="Negro",command=lambda:cambiar_tema("negro"))
 
 #crea una barra en la parte mas baja de la ventana
 barra_estado = tk.Label(ventana, text="", padx=20, pady=10)
