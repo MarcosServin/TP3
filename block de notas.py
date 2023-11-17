@@ -3,6 +3,12 @@ import tkinter.font as tkFont
 from tkinter import filedialog
 from datetime import datetime
 import csv
+import hashlib
+from gtts import gTTS
+from playsound import playsound
+import os 
+
+
 
 ventana = tk.Tk()
 ventana.title("Editor de Texto")
@@ -146,6 +152,7 @@ def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opc
     return lista_familia_eleccion
 
 lista_fuentes = buscar_fuentes_locales()
+
 #por cada fuente en la lista crea un boton con comando que ejecuta la funcion de cambiar la familia-fuente
 for nombre_fuente in lista_fuentes:
     menu_formato.add_command(label=nombre_fuente, command=lambda name=nombre_fuente: cambiar_fuente(name))
@@ -236,7 +243,7 @@ def mostrar_menu_contextual(event):
 block_de_texto.bind("<Button-3>", mostrar_menu_contextual)
 
 def aumentar(event):
-    cambiar_tamaño_fuente(2)
+    cambiar_tamaño_fuente(5)
 
 def disminuir(event):
     cambiar_tamaño_fuente(-2)
@@ -253,12 +260,13 @@ def leer_configuracion():
     ancho = 800
     alto = 600
     modo = False
+    version = 0
     try:
         with open(archivo_de_configuracion, 'r', newline='') as file:
             reader = csv.reader(file)
             for row in reader:
                 if len(row) == 4:
-                    r_familia, r_tamaño, r_tema, modo = row
+                    r_familia, r_tamaño, r_tema, modo= row
                     fuente = r_familia
                     tamaño = int(r_tamaño)
                     tema = r_tema
@@ -279,6 +287,50 @@ def actualizar_configuracion(x,y):
     modo = (ventana.state() == 'zoomed')
     remplazar_dato_de_columna(x,y)
     remplazar_dato_de_columna(3,modo)
+
+def leer_texto_completo():
+    texto = block_de_texto.get("1.0", "end-1c")
+    audio = 'audio.mp3'
+    language = 'es'
+    texto = texto
+    sp = gTTS(text=texto, lang=language, slow=False)
+    sp.save(audio)
+    playsound(audio)
+    borrar_archivo_audio()
+
+
+def borrar_archivo_audio():
+    try:
+        abs_path = os.path.abspath("audio.mp3")
+        os.remove(abs_path)
+    except OSError as e:
+        print(f"Error: {e.strerror}")
+
+
+menu_audio=tk.Menu(barra_menu,tearoff=0)
+barra_menu.add_cascade(label="Audio", menu=menu_audio)
+menu_audio.add_command(label="Leer archivo",command=leer_texto_completo)
+
+#controlador de versiones para avisar al usuario que debe borrar el archivo opciones por ser obsoleto
+def generador_de_codigo_hash():
+    with open(__file__, 'r', encoding='utf-8') as file: #abre el este archivo
+        code = file.read()
+
+    lineas_de_codigo = code.split('\n') #remueve la line de el generador hash
+    for i, line in enumerate(lineas_de_codigo):
+        if 'generador_de_codigo_hash()' in line:
+            del lineas_de_codigo[i:]
+            break
+
+    codigo_sin_funcion = '\n'.join(lineas_de_codigo)
+
+    funcion_hash = hashlib.sha256() #crea el hash
+    funcion_hash.update(codigo_sin_funcion.encode('utf-8'))
+    return funcion_hash.hexdigest()
+
+# genera el hash
+hash_de_codigo = generador_de_codigo_hash()
+print(hash_de_codigo)
 
 actualizar_barra_estado()
 ventana.mainloop()
