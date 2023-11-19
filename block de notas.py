@@ -3,7 +3,7 @@ import tkinter.font as tkFont
 from tkinter import filedialog
 from datetime import datetime
 import csv
-import hashlib
+import pyttsx3
 from gtts import gTTS
 from playsound import playsound
 import os 
@@ -12,6 +12,8 @@ import os
 
 ventana = tk.Tk()
 ventana.title("Editor de Texto")
+
+# lector = pyttsx3.init()
 
 def cambiar_logo():#intenta cargar cfl_logo y usarlo como icono
     try:
@@ -100,10 +102,14 @@ mensaje_de_pantalla = tk.Label(ventana, text="", padx=20, pady=10)
 mensaje_de_pantalla.grid(row=1, column=0, sticky="ew")
 
 #opciones que aparecen en el menu archivo
-menu_archivo.add_command(label="Abrir", command=abrir_archivo)
-menu_archivo.add_command(label="Guardar", command=guardar_archivo)
-menu_archivo.add_command(label="Salir", command=ventana.destroy)
-
+def crear_opciones_de_archivo():
+    try:
+        menu_archivo.add_command(label="Abrir", command=abrir_archivo)
+        menu_archivo.add_command(label="Guardar", command=guardar_archivo)
+        menu_archivo.add_command(label="Salir", command=ventana.destroy)
+    except:
+        pass
+crear_opciones_de_archivo()
 #crea un nuevo menu para la edicion de texto
 menu_edicion = tk.Menu(barra_menu, tearoff=0)
 barra_menu.add_cascade(label="Edición", menu=menu_edicion)
@@ -125,12 +131,17 @@ def rehacer():
     block_de_texto.event_generate("<<Redo>>")
 
 #opciones del menu edicion
-menu_edicion.add_command(label="Cortar", command=cortar_texto)
-menu_edicion.add_command(label="Copiar", command=copiar_texto)
-menu_edicion.add_command(label="Pegar", command=pegar_texto)
-menu_edicion.add_command(label="Seleccionar Todo", command=seleccionar_todo)
-menu_edicion.add_command(label="Deshacer", command=deshacer)
-menu_edicion.add_command(label="Rehacer", command=rehacer)
+def crear_comandos_de_edicion():
+    try:
+        menu_edicion.add_command(label="Cortar", command=cortar_texto)
+        menu_edicion.add_command(label="Copiar", command=copiar_texto)
+        menu_edicion.add_command(label="Pegar", command=pegar_texto)
+        menu_edicion.add_command(label="Seleccionar Todo", command=seleccionar_todo)
+        menu_edicion.add_command(label="Deshacer", command=deshacer)
+        menu_edicion.add_command(label="Rehacer", command=rehacer)
+    except :
+        pass
+crear_comandos_de_edicion()
 
 #configura la fuente modificada para que use la familia ingresada,despues cambia la fuente de el widget de texto por la fuente que se modificó
 def cambiar_fuente(familia):
@@ -144,75 +155,99 @@ menu_formato = tk.Menu(barra_menu, tearoff=0)
 barra_menu.add_cascade(label="Fuente", menu=menu_formato)
 
 def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opciones
-    fuente_familia = tkFont.families()
-    lista_familia_eleccion=[]
-    for f in fuente_familia:
-        lista_familia_eleccion.append(f)
-    lista_familia_eleccion=sorted(lista_familia_eleccion)
-    return lista_familia_eleccion
+    try:
+        fuente_familia = tkFont.families()
+        lista_familia_eleccion=[]
+        for f in fuente_familia:
+            lista_familia_eleccion.append(f)
+        lista_familia_eleccion=sorted(lista_familia_eleccion)
+        return lista_familia_eleccion
+    except :
+        pass
 
 lista_fuentes = buscar_fuentes_locales()
 
 #por cada fuente en la lista crea un boton con comando que ejecuta la funcion de cambiar la familia-fuente
-for nombre_fuente in lista_fuentes:
-    menu_formato.add_command(label=nombre_fuente, command=lambda name=nombre_fuente: cambiar_fuente(name))
-    
+def crear_lista_menu_de_fuentes():
+    try:
+        for nombre_fuente in lista_fuentes:
+            menu_formato.add_command(label=nombre_fuente, command=lambda name=nombre_fuente: cambiar_fuente(name))
+    except :
+        pass
+
+crear_lista_menu_de_fuentes()
 
 def cambiar_tamaño_fuente(numero):#aumenta o disminuye el tamaño de la fuente por 2
-    tamaño_actual = fuente_modificada.actual("size")
-    if (tamaño_actual+numero>=10) or (numero>1):
-        tamaño_actual += numero
-        fuente_modificada.configure(size=tamaño_actual)
-        block_de_texto.configure(font=fuente_modificada)
-        actualizar_configuracion(1,tamaño_actual)
+    try:
+        tamaño_actual = fuente_modificada.actual("size")
+        if (tamaño_actual+numero>=10) or (numero>1):
+            tamaño_actual += numero
+            fuente_modificada.configure(size=tamaño_actual)
+            block_de_texto.configure(font=fuente_modificada)
+            actualizar_configuracion(1,tamaño_actual)
+    except :
+        pass
 
 barra_menu.add_command(label="A ↑", command=lambda: cambiar_tamaño_fuente(2))
 barra_menu.add_command(label="a ↓", command=lambda: cambiar_tamaño_fuente(-2))
 
 def cambiar_tema(tema_color):#Corre una función distinta para cada tema
-    if tema_color=="claro":
-        cambiar_tema_claro()
-    elif tema_color=="oscuro":
-        cambiar_tema_oscuro()
-    elif tema_color=="verde":
-        cambiar_tema_verde()
-    elif tema_color=="negro":
-        cambiar_tema_negro()
-
-    actualizar_configuracion(2,tema_color)#Actualiza el archivo de configuraciónes con el tema elegído
-
+    try:
+        if tema_color=="claro":
+            cambiar_tema_claro()
+        elif tema_color=="oscuro":
+            cambiar_tema_oscuro()
+        elif tema_color=="verde":
+            cambiar_tema_verde()
+        elif tema_color=="negro":
+            cambiar_tema_negro()
+        actualizar_configuracion(2,tema_color)#Actualiza el archivo de configuraciónes con el tema elegído
+    except :
+        pass
 #cambia el color de fondo,caracteres,cursor de texto,fondo seleccionado,caracter seleccionado
 def cambiar_tema_claro():
-    block_de_texto.configure(bg="#fffbfd", fg="#262626",insertbackground="black",selectbackground="grey",selectforeground="#fffbfd")
-    barra_estado.configure(bg="#fffbfd", fg="#262626")
-    menu_formato.configure(bg="#fffbfd", fg="#262626")
-    menu_tema.configure(bg="#fffbfd", fg="#262626")
-    menu_archivo.configure(bg="#fffbfd", fg="#262626")
-    menu_edicion.configure(bg="#fffbfd", fg="#262626")
+    try:
+        block_de_texto.configure(bg="#fffbfd", fg="#262626",insertbackground="black",selectbackground="grey",selectforeground="#fffbfd")
+        barra_estado.configure(bg="#fffbfd", fg="#262626")
+        menu_formato.configure(bg="#fffbfd", fg="#262626")
+        menu_tema.configure(bg="#fffbfd", fg="#262626")
+        menu_archivo.configure(bg="#fffbfd", fg="#262626")
+        menu_edicion.configure(bg="#fffbfd", fg="#262626")
+    except :
+        pass
 
 def cambiar_tema_oscuro():
-    block_de_texto.configure(bg="#262626", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
-    barra_estado.configure(bg="#262626", fg="#fffbfd")
-    menu_formato.configure(bg="#262626", fg="#fffbfd")
-    menu_tema.configure(bg="#262626", fg="#fffbfd")
-    menu_archivo.configure(bg="#262626", fg="#fffbfd")
-    menu_edicion.configure(bg="#262626", fg="#fffbfd")
+    try:
+        block_de_texto.configure(bg="#262626", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
+        barra_estado.configure(bg="#262626", fg="#fffbfd")
+        menu_formato.configure(bg="#262626", fg="#fffbfd")
+        menu_tema.configure(bg="#262626", fg="#fffbfd")
+        menu_archivo.configure(bg="#262626", fg="#fffbfd")
+        menu_edicion.configure(bg="#262626", fg="#fffbfd")
+    except :
+        pass
 
 def cambiar_tema_negro():
-    block_de_texto.configure(bg="black", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
-    barra_estado.configure(bg="black", fg="#fffbfd")
-    menu_formato.configure(bg="black", fg="#fffbfd")
-    menu_tema.configure(bg="black", fg="#fffbfd")
-    menu_archivo.configure(bg="black", fg="#fffbfd")
-    menu_edicion.configure(bg="black", fg="#fffbfd")
+    try:
+        block_de_texto.configure(bg="black", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
+        barra_estado.configure(bg="black", fg="#fffbfd")
+        menu_formato.configure(bg="black", fg="#fffbfd")
+        menu_tema.configure(bg="black", fg="#fffbfd")
+        menu_archivo.configure(bg="black", fg="#fffbfd")
+        menu_edicion.configure(bg="black", fg="#fffbfd")
+    except :
+        pass
 
 def cambiar_tema_verde():
-    block_de_texto.configure(bg="#e6ffe6", fg="#216421",insertbackground="green",selectbackground="#216421",selectforeground="#e6ffe6")
-    barra_estado.configure(bg="#b4ffb4", fg="#316431")
-    menu_formato.configure(bg="#b4ffb4", fg="#316431")
-    menu_tema.configure(bg="#b4ffb4", fg="#316431")
-    menu_archivo.configure(bg="#b4ffb4", fg="#316431")
-    menu_edicion.configure(bg="#b4ffb4", fg="#316431")
+    try:
+        block_de_texto.configure(bg="#e6ffe6", fg="#216421",insertbackground="green",selectbackground="#216421",selectforeground="#e6ffe6")
+        barra_estado.configure(bg="#b4ffb4", fg="#316431")
+        menu_formato.configure(bg="#b4ffb4", fg="#316431")
+        menu_tema.configure(bg="#b4ffb4", fg="#316431")
+        menu_archivo.configure(bg="#b4ffb4", fg="#316431")
+        menu_edicion.configure(bg="#b4ffb4", fg="#316431")
+    except :
+        pass
 
 #crea el menu tema con un boton para cada tema
 menu_tema = tk.Menu(barra_menu,tearoff=0)
@@ -229,24 +264,35 @@ barra_estado.config(font=("Arial", 10))
 
 #cada 500 milisegundos la barra de estado se actualiza con datos del texto,fuente u hora
 def actualizar_barra_estado():
-    cantidad_caracteres = len(block_de_texto.get("1.0", "end-1c"))
-    tamaño_fuente = fuente_modificada.actual("size")
-    nombre_fuente = fuente_modificada.actual("family")
-    hora_actual = datetime.now().strftime("%H:%M:%S %d-%m-%Y ")
-    texto_estado = f"Caracteres: {cantidad_caracteres} | Tamaño de Fuente: {tamaño_fuente} | Fuente: {nombre_fuente} | Hora: {hora_actual}"
-    barra_estado.config(text=texto_estado)
-    ventana.after(500, actualizar_barra_estado)
+    try:
+        cantidad_caracteres = len(block_de_texto.get("1.0", "end-1c"))
+        tamaño_fuente = fuente_modificada.actual("size")
+        nombre_fuente = fuente_modificada.actual("family")
+        hora_actual = datetime.now().strftime("%H:%M:%S %d-%m-%Y ")
+        texto_estado = f"Caracteres: {cantidad_caracteres} | Tamaño de Fuente: {tamaño_fuente} | Fuente: {nombre_fuente} | Hora: {hora_actual}"
+        barra_estado.config(text=texto_estado)
+        ventana.after(500, actualizar_barra_estado)
+    except :
+        pass
     
 #crea abre el menu_edicion en pantalla cuando se usa el boton derecho
 def mostrar_menu_contextual(event):
-    menu_edicion.post(event.x_root, event.y_root)
+    try:
+        menu_edicion.post(event.x_root, event.y_root)
+    except :
+        pass
 block_de_texto.bind("<Button-3>", mostrar_menu_contextual)
 
 def aumentar(event):
-    cambiar_tamaño_fuente(5)
-
+    try:
+        cambiar_tamaño_fuente(2)
+    except :
+        pass
 def disminuir(event):
-    cambiar_tamaño_fuente(-2)
+    try:
+        cambiar_tamaño_fuente(-2)
+    except :
+        pass
     
 block_de_texto.bind("<Control-minus>",disminuir)
 block_de_texto.bind("<Control-plus>",aumentar)
@@ -260,7 +306,6 @@ def leer_configuracion():
     ancho = 800
     alto = 600
     modo = False
-    version = 0
     try:
         with open(archivo_de_configuracion, 'r', newline='') as file:
             reader = csv.reader(file)
@@ -284,54 +329,59 @@ leer_configuracion()
 
 #cada vez que un dato se cambia en el archivo opciones ,se guarda True si la ventana está maximizada of False si no lo está
 def actualizar_configuracion(x,y):
-    modo = (ventana.state() == 'zoomed')
-    remplazar_dato_de_columna(x,y)
-    remplazar_dato_de_columna(3,modo)
+    try:
+        modo = (ventana.state() == 'zoomed')
+        remplazar_dato_de_columna(x,y)
+        remplazar_dato_de_columna(3,modo)
+    except ValueError as a:
+        print(a)
 
-def leer_texto_completo():
-    texto = block_de_texto.get("1.0", "end-1c")
-    audio = 'audio.mp3'
-    language = 'es'
-    texto = texto
-    sp = gTTS(text=texto, lang=language, slow=False)
-    sp.save(audio)
-    playsound(audio)
-    borrar_archivo_audio()
-
-
-def borrar_archivo_audio():
+def lector_de_texto():
     try:
         abs_path = os.path.abspath("audio.mp3")
         os.remove(abs_path)
     except OSError as e:
         print(f"Error: {e.strerror}")
+    texto = block_de_texto.get("1.0", "end-1c")
+    if len(texto)==0:
+        texto="Sin texto"
+    audio = 'audio.mp3'
+    language = 'es'
+    acento = 'com.mx'
+    texto = texto
+    sp = gTTS(text=texto, lang=language, tld=acento, slow=False)
+    sp.save(audio)
+    playsound(audio)
 
+
+# lista_nativa_de_voz = lector.getProperty('voices')
+   
+# def lector_de_texto():
+#     texto=block_de_texto.get("1.0","end-1c")
+#     try:
+#         lector.say(texto)
+#         lector.runAndWait()
+#     except:
+#         pass
+
+# def cambiar_voz(indice):
+#     try:
+#         lector.setProperty('voice', lista_nativa_de_voz[indice].id)
+#     except:
+#         pass
 
 menu_audio=tk.Menu(barra_menu,tearoff=0)
 barra_menu.add_cascade(label="Audio", menu=menu_audio)
-menu_audio.add_command(label="Leer archivo",command=leer_texto_completo)
+menu_audio.add_command(label="Lector de texto",command=lector_de_texto)
 
-#controlador de versiones para avisar al usuario que debe borrar el archivo opciones por ser obsoleto
-def generador_de_codigo_hash():
-    with open(__file__, 'r', encoding='utf-8') as file: #abre el este archivo
-        code = file.read()
+# def generar_lista_voz_menu():
+#     try: 
+#         for voz in range(len(lista_nativa_de_voz)):
+#             menu_audio.add_command(label=lista_nativa_de_voz[voz].name,command=lambda :cambiar_voz(voz))
+#     except:
+#         pass
 
-    lineas_de_codigo = code.split('\n') #remueve la line de el generador hash
-    for i, line in enumerate(lineas_de_codigo):
-        if 'generador_de_codigo_hash()' in line:
-            del lineas_de_codigo[i:]
-            break
-
-    codigo_sin_funcion = '\n'.join(lineas_de_codigo)
-
-    funcion_hash = hashlib.sha256() #crea el hash
-    funcion_hash.update(codigo_sin_funcion.encode('utf-8'))
-    return funcion_hash.hexdigest()
-
-# genera el hash
-hash_de_codigo = generador_de_codigo_hash()
-print(hash_de_codigo)
+# generar_lista_voz_menu()
 
 actualizar_barra_estado()
 ventana.mainloop()
-
