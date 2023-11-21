@@ -3,12 +3,10 @@ import tkinter.font as tkFont
 from tkinter import filedialog
 from datetime import datetime
 import csv
-import pyttsx3
+from tkinter import ttk
 from gtts import gTTS
 from playsound import playsound
 import os 
-
-
 
 ventana = tk.Tk()
 ventana.title("Editor de Texto")
@@ -94,7 +92,7 @@ def guardar_archivo():
                 file.write(text_content)
             mensaje_de_pantalla.config(text=f"Archivo guardado: {ruta_archivo}")
         except Exception as e:
-            mensaje_de_pantalla.config(text=f"Error al guardar archivo: {str(e)}")
+            mensaje_de_pantalla.config(text=f"Error: {str(e)}")
         actualizar_barra_estado()
 
 #mensaje de error por si no se puede guardar
@@ -107,8 +105,8 @@ def crear_opciones_de_archivo():
         menu_archivo.add_command(label="Abrir", command=abrir_archivo)
         menu_archivo.add_command(label="Guardar", command=guardar_archivo)
         menu_archivo.add_command(label="Salir", command=ventana.destroy)
-    except:
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 crear_opciones_de_archivo()
 #crea un nuevo menu para la edicion de texto
 menu_edicion = tk.Menu(barra_menu, tearoff=0)
@@ -139,8 +137,8 @@ def crear_comandos_de_edicion():
         menu_edicion.add_command(label="Seleccionar Todo", command=seleccionar_todo)
         menu_edicion.add_command(label="Deshacer", command=deshacer)
         menu_edicion.add_command(label="Rehacer", command=rehacer)
-    except :
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 crear_comandos_de_edicion()
 
 #configura la fuente modificada para que use la familia ingresada,despues cambia la fuente de el widget de texto por la fuente que se modificó
@@ -149,11 +147,7 @@ def cambiar_fuente(familia):
     block_de_texto.configure(font=fuente_modificada)
     actualizar_configuracion(0,familia)
 
-
 #crea el menu formato
-menu_formato = tk.Menu(barra_menu, tearoff=0)
-barra_menu.add_cascade(label="Fuente", menu=menu_formato)
-
 def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opciones
     try:
         fuente_familia = tkFont.families()
@@ -162,20 +156,50 @@ def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opc
             lista_familia_eleccion.append(f)
         lista_familia_eleccion=sorted(lista_familia_eleccion)
         return lista_familia_eleccion
-    except :
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 
 lista_fuentes = buscar_fuentes_locales()
 
-#por cada fuente en la lista crea un boton con comando que ejecuta la funcion de cambiar la familia-fuente
-def crear_lista_menu_de_fuentes():
+#crea una nueva ventana cuando se intente cambiar de fuente
+def ventana_de_fuentes():
+    window = tk.Toplevel()
+    window.geometry('200x400')
     try:
-        for nombre_fuente in lista_fuentes:
-            menu_formato.add_command(label=nombre_fuente, command=lambda name=nombre_fuente: cambiar_fuente(name))
-    except :
+        icon_image = tk.PhotoImage(file="cfl_logo.png")
+        window.iconphoto(False, icon_image)
+    except:
         pass
+    window.columnconfigure(0, weight=1)
+    window.rowconfigure(0, weight=1)
 
-crear_lista_menu_de_fuentes()
+    #crea el widget de texto con la fuente modifcada arriba
+    block_de_texto = tk.Text(frame_de_texto, wrap='word', undo=True, autoseparators=True, font=fuente_modificada)
+    block_de_texto.grid(row=0, column=0, sticky="nsew")
+
+    frame_de_texto.columnconfigure(0, weight=1)
+    frame_de_texto.rowconfigure(0, weight=1)
+    frame_de_texto.grid_propagate(False)
+
+    #crea la barra de scroll vertical
+    barra_navegacion_y = tk.Scrollbar(frame_de_texto, command=block_de_texto.yview)
+    barra_navegacion_y.grid(row=0, column=1, sticky="ns")
+
+    #asigna la barra al widget de texto
+    block_de_texto.config(yscrollcommand=barra_navegacion_y.set)
+
+    fondo,letra=block_de_texto.cget('background'),block_de_texto.cget('foreground')
+    frame = tk.Frame(window)
+    frame.grid(row=0, column=0, sticky="nsew")
+    label = tk.Label(window,text = "Selecciona una  fuente.")  
+    label.grid(row=0,column=0)
+    listbox = tk.Listbox(window)  
+    for e in range(len(lista_fuentes)):
+        listbox.insert(e,lista_fuentes[e])
+    listbox.bind("<<ListaboxSelected>>", lambda event: cambiar_fuente(listbox.get()))
+    listbox.grid(row=1,column=0)
+
+barra_menu.add_command(label="Cambiar fuente", command=ventana_de_fuentes)
 
 def cambiar_tamaño_fuente(numero):#aumenta o disminuye el tamaño de la fuente por 2
     try:
@@ -185,11 +209,35 @@ def cambiar_tamaño_fuente(numero):#aumenta o disminuye el tamaño de la fuente 
             fuente_modificada.configure(size=tamaño_actual)
             block_de_texto.configure(font=fuente_modificada)
             actualizar_configuracion(1,tamaño_actual)
-    except :
-        pass
+    except Exception as e:
+            mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 
 barra_menu.add_command(label="A ↑", command=lambda: cambiar_tamaño_fuente(2))
 barra_menu.add_command(label="a ↓", command=lambda: cambiar_tamaño_fuente(-2))
+
+def lector_de_texto():
+    try:
+        abs_path = os.path.abspath("audio.mp3")
+        os.remove(abs_path)
+    except OSError as e:
+        print(f"Error: {e.strerror}")
+    texto = block_de_texto.get("1.0", "end-1c")
+    if len(texto)==0:
+        texto="Sin texto"
+    audio = 'audio.mp3'
+    language = 'es'
+    acento = 'com.mx'
+    texto = texto
+    try:
+        sp = gTTS(text=texto, lang=language, tld=acento, slow=False)
+        sp.save(audio)
+        playsound(audio)
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
+
+menu_audio=tk.Menu(barra_menu,tearoff=0)
+barra_menu.add_cascade(label="Audio", menu=menu_audio)
+menu_audio.add_command(label="Lector de texto",command=lector_de_texto)
 
 def cambiar_tema(tema_color):#Corre una función distinta para cada tema
     try:
@@ -202,53 +250,56 @@ def cambiar_tema(tema_color):#Corre una función distinta para cada tema
         elif tema_color=="negro":
             cambiar_tema_negro()
         actualizar_configuracion(2,tema_color)#Actualiza el archivo de configuraciónes con el tema elegído
-    except :
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 #cambia el color de fondo,caracteres,cursor de texto,fondo seleccionado,caracter seleccionado
 def cambiar_tema_claro():
     try:
         block_de_texto.configure(bg="#fffbfd", fg="#262626",insertbackground="black",selectbackground="grey",selectforeground="#fffbfd")
         barra_estado.configure(bg="#fffbfd", fg="#262626")
-        menu_formato.configure(bg="#fffbfd", fg="#262626")
+        # menu_formato.configure(bg="#fffbfd", fg="#262626")
         menu_tema.configure(bg="#fffbfd", fg="#262626")
         menu_archivo.configure(bg="#fffbfd", fg="#262626")
-        menu_edicion.configure(bg="#fffbfd", fg="#262626")
-    except :
-        pass
+        menu_archivo.configure(bg="#fffbfd", fg="#262626")
+        menu_audio.configure(bg="#fffbfd", fg="#262626")
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 
 def cambiar_tema_oscuro():
     try:
         block_de_texto.configure(bg="#262626", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
         barra_estado.configure(bg="#262626", fg="#fffbfd")
-        menu_formato.configure(bg="#262626", fg="#fffbfd")
+        # menu_formato.configure(bg="#262626", fg="#fffbfd")
         menu_tema.configure(bg="#262626", fg="#fffbfd")
         menu_archivo.configure(bg="#262626", fg="#fffbfd")
         menu_edicion.configure(bg="#262626", fg="#fffbfd")
-    except :
-        pass
+        menu_audio.configure(bg="#262626", fg="#fffbfd")
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 
 def cambiar_tema_negro():
     try:
         block_de_texto.configure(bg="black", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
         barra_estado.configure(bg="black", fg="#fffbfd")
-        menu_formato.configure(bg="black", fg="#fffbfd")
+        # menu_formato.configure(bg="black", fg="#fffbfd")
         menu_tema.configure(bg="black", fg="#fffbfd")
         menu_archivo.configure(bg="black", fg="#fffbfd")
         menu_edicion.configure(bg="black", fg="#fffbfd")
-    except :
-        pass
+        menu_audio.configure(bg="black", fg="#fffbfd")
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 
 def cambiar_tema_verde():
     try:
         block_de_texto.configure(bg="#e6ffe6", fg="#216421",insertbackground="green",selectbackground="#216421",selectforeground="#e6ffe6")
         barra_estado.configure(bg="#b4ffb4", fg="#316431")
-        menu_formato.configure(bg="#b4ffb4", fg="#316431")
+        # menu_formato.configure(bg="#b4ffb4", fg="#316431")
         menu_tema.configure(bg="#b4ffb4", fg="#316431")
         menu_archivo.configure(bg="#b4ffb4", fg="#316431")
         menu_edicion.configure(bg="#b4ffb4", fg="#316431")
-    except :
-        pass
-
+        menu_audio.configure(bg="#b4ffb4", fg="#316431")
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 #crea el menu tema con un boton para cada tema
 menu_tema = tk.Menu(barra_menu,tearoff=0)
 barra_menu.add_cascade(label="Tema",menu=menu_tema)
@@ -272,27 +323,27 @@ def actualizar_barra_estado():
         texto_estado = f"Caracteres: {cantidad_caracteres} | Tamaño de Fuente: {tamaño_fuente} | Fuente: {nombre_fuente} | Hora: {hora_actual}"
         barra_estado.config(text=texto_estado)
         ventana.after(500, actualizar_barra_estado)
-    except :
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
     
 #crea abre el menu_edicion en pantalla cuando se usa el boton derecho
 def mostrar_menu_contextual(event):
     try:
         menu_edicion.post(event.x_root, event.y_root)
-    except :
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 block_de_texto.bind("<Button-3>", mostrar_menu_contextual)
 
 def aumentar(event):
     try:
         cambiar_tamaño_fuente(2)
-    except :
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 def disminuir(event):
     try:
         cambiar_tamaño_fuente(-2)
-    except :
-        pass
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
     
 block_de_texto.bind("<Control-minus>",disminuir)
 block_de_texto.bind("<Control-plus>",aumentar)
@@ -333,55 +384,8 @@ def actualizar_configuracion(x,y):
         modo = (ventana.state() == 'zoomed')
         remplazar_dato_de_columna(x,y)
         remplazar_dato_de_columna(3,modo)
-    except ValueError as a:
-        print(a)
-
-def lector_de_texto():
-    try:
-        abs_path = os.path.abspath("audio.mp3")
-        os.remove(abs_path)
-    except OSError as e:
-        print(f"Error: {e.strerror}")
-    texto = block_de_texto.get("1.0", "end-1c")
-    if len(texto)==0:
-        texto="Sin texto"
-    audio = 'audio.mp3'
-    language = 'es'
-    acento = 'com.mx'
-    texto = texto
-    sp = gTTS(text=texto, lang=language, tld=acento, slow=False)
-    sp.save(audio)
-    playsound(audio)
-
-
-# lista_nativa_de_voz = lector.getProperty('voices')
-   
-# def lector_de_texto():
-#     texto=block_de_texto.get("1.0","end-1c")
-#     try:
-#         lector.say(texto)
-#         lector.runAndWait()
-#     except:
-#         pass
-
-# def cambiar_voz(indice):
-#     try:
-#         lector.setProperty('voice', lista_nativa_de_voz[indice].id)
-#     except:
-#         pass
-
-menu_audio=tk.Menu(barra_menu,tearoff=0)
-barra_menu.add_cascade(label="Audio", menu=menu_audio)
-menu_audio.add_command(label="Lector de texto",command=lector_de_texto)
-
-# def generar_lista_voz_menu():
-#     try: 
-#         for voz in range(len(lista_nativa_de_voz)):
-#             menu_audio.add_command(label=lista_nativa_de_voz[voz].name,command=lambda :cambiar_voz(voz))
-#     except:
-#         pass
-
-# generar_lista_voz_menu()
+    except Exception as e:
+        mensaje_de_pantalla.config(text=f"Error: {str(e)}")
 
 actualizar_barra_estado()
 ventana.mainloop()
