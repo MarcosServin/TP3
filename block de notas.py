@@ -143,10 +143,12 @@ crear_comandos_de_edicion()
 
 #configura la fuente modificada para que use la familia ingresada,despues cambia la fuente de el widget de texto por la fuente que se modificó
 def cambiar_fuente(familia):
-    fuente_modificada.configure(family=familia)
-    block_de_texto.configure(font=fuente_modificada)
-    actualizar_configuracion(0,familia)
-
+    try:
+        fuente_modificada.configure(family=familia)
+        block_de_texto.configure(font=fuente_modificada)
+        actualizar_configuracion(0,familia)
+    except Exception as a:
+        print(f"Error:{a}")
 #crea el menu formato
 def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opciones
     try:
@@ -161,43 +163,46 @@ def buscar_fuentes_locales():#busca fuentes en el sistema y las muestra como opc
 
 lista_fuentes = buscar_fuentes_locales()
 
+def obtener_index(lista):
+    abc=0
+    try:
+        abc=lista.curselection()
+        abc=list(abc)
+        if abc==False: 
+            abc=0
+        else :
+            abc=abc[0]
+    except Exception as a:
+        print(a)
+        abc=0
+    cambiar_fuente(lista_fuentes[abc])
 #crea una nueva ventana cuando se intente cambiar de fuente
 def ventana_de_fuentes():
-    window = tk.Toplevel()
-    window.geometry('200x400')
+    fondo,letras=block_de_texto.cget("background"),block_de_texto.cget('foreground')
+    window = tk.Toplevel()    
     try:
         icon_image = tk.PhotoImage(file="cfl_logo.png")
         window.iconphoto(False, icon_image)
     except:
         pass
-    window.columnconfigure(0, weight=1)
-    window.rowconfigure(0, weight=1)
-
-    #crea el widget de texto con la fuente modifcada arriba
-    block_de_texto = tk.Text(frame_de_texto, wrap='word', undo=True, autoseparators=True, font=fuente_modificada)
-    block_de_texto.grid(row=0, column=0, sticky="nsew")
-
-    frame_de_texto.columnconfigure(0, weight=1)
-    frame_de_texto.rowconfigure(0, weight=1)
-    frame_de_texto.grid_propagate(False)
-
-    #crea la barra de scroll vertical
-    barra_navegacion_y = tk.Scrollbar(frame_de_texto, command=block_de_texto.yview)
-    barra_navegacion_y.grid(row=0, column=1, sticky="ns")
-
-    #asigna la barra al widget de texto
-    block_de_texto.config(yscrollcommand=barra_navegacion_y.set)
-
-    fondo,letra=block_de_texto.cget('background'),block_de_texto.cget('foreground')
+    window.geometry('200x400')
     frame = tk.Frame(window)
     frame.grid(row=0, column=0, sticky="nsew")
-    label = tk.Label(window,text = "Selecciona una  fuente.")  
-    label.grid(row=0,column=0)
-    listbox = tk.Listbox(window)  
+    window.columnconfigure(0, weight=1)
+    window.rowconfigure(0, weight=1)
+    listabox = tk.Listbox(frame,height=100,width=150)
+    listabox.config(fg=letras,bg=fondo)
+    listabox.grid(row=0,column=0,sticky="nw")
+    frame.columnconfigure(0, weight=1)
+    frame.rowconfigure(0, weight=1)
+    frame_de_texto.grid_propagate(False)
+    barra_navegacion_y = tk.Scrollbar(window, command=listabox.yview)
+    barra_navegacion_y.grid(row=0, column=1, sticky="ns")
+    listabox.config(yscrollcommand=barra_navegacion_y.set)
     for e in range(len(lista_fuentes)):
-        listbox.insert(e,lista_fuentes[e])
-    listbox.bind("<<ListaboxSelected>>", lambda event: cambiar_fuente(listbox.get()))
-    listbox.grid(row=1,column=0)
+        listabox.insert(e,lista_fuentes[e])
+    boton_seleccion=tk.Button(window,text='Cambiar fuente',command=lambda:obtener_index(listabox))
+    boton_seleccion.grid(row=1,column=0)
 
 barra_menu.add_command(label="Cambiar fuente", command=ventana_de_fuentes)
 
