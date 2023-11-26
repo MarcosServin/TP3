@@ -201,8 +201,8 @@ def ventana_de_fuentes():
     listabox.config(yscrollcommand=barra_navegacion_y.set)
     for e in range(len(lista_fuentes)):
         listabox.insert(e,lista_fuentes[e])
-    boton_seleccion=tk.Button(window,text='Cambiar fuente',command=lambda:obtener_index(listabox))
-    boton_seleccion.grid(row=1,column=0)
+    boton_seleccion=tk.Button(window,text='Cambiar fuente',fg=letras,bg=fondo,command=lambda:obtener_index(listabox))
+    boton_seleccion.grid(row=1,column=0,sticky="we")
 
 barra_menu.add_command(label="Cambiar fuente", command=ventana_de_fuentes)
 
