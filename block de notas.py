@@ -3,7 +3,6 @@ import tkinter.font as tkFont
 from tkinter import filedialog
 from datetime import datetime
 import csv
-from tkinter import ttk
 from gtts import gTTS
 from playsound import playsound
 import os 
