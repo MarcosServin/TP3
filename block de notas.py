@@ -191,7 +191,7 @@ def ventana_de_fuentes():
     window.rowconfigure(0, weight=1)
     listabox = tk.Listbox(frame,height=100,width=150)
     listabox.config(fg=letras,bg=fondo)
-    listabox.grid(row=0,column=0,sticky="nw")
+    listabox.grid(row=0,column=0,sticky="nsww")
     frame.columnconfigure(0, weight=1)
     frame.rowconfigure(0, weight=1)
     frame_de_texto.grid_propagate(False)
@@ -261,7 +261,6 @@ def cambiar_tema_claro():
     try:
         block_de_texto.configure(bg="#fffbfd", fg="#262626",insertbackground="black",selectbackground="grey",selectforeground="#fffbfd")
         barra_estado.configure(bg="#fffbfd", fg="#262626")
-        # menu_formato.configure(bg="#fffbfd", fg="#262626")
         menu_tema.configure(bg="#fffbfd", fg="#262626")
         menu_archivo.configure(bg="#fffbfd", fg="#262626")
         menu_archivo.configure(bg="#fffbfd", fg="#262626")
@@ -273,7 +272,6 @@ def cambiar_tema_oscuro():
     try:
         block_de_texto.configure(bg="#262626", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
         barra_estado.configure(bg="#262626", fg="#fffbfd")
-        # menu_formato.configure(bg="#262626", fg="#fffbfd")
         menu_tema.configure(bg="#262626", fg="#fffbfd")
         menu_archivo.configure(bg="#262626", fg="#fffbfd")
         menu_edicion.configure(bg="#262626", fg="#fffbfd")
@@ -285,7 +283,6 @@ def cambiar_tema_negro():
     try:
         block_de_texto.configure(bg="black", fg="#fffbfd",insertbackground="grey",selectbackground="grey")
         barra_estado.configure(bg="black", fg="#fffbfd")
-        # menu_formato.configure(bg="black", fg="#fffbfd")
         menu_tema.configure(bg="black", fg="#fffbfd")
         menu_archivo.configure(bg="black", fg="#fffbfd")
         menu_edicion.configure(bg="black", fg="#fffbfd")
@@ -297,7 +294,6 @@ def cambiar_tema_verde():
     try:
         block_de_texto.configure(bg="#e6ffe6", fg="#216421",insertbackground="green",selectbackground="#216421",selectforeground="#e6ffe6")
         barra_estado.configure(bg="#b4ffb4", fg="#316431")
-        # menu_formato.configure(bg="#b4ffb4", fg="#316431")
         menu_tema.configure(bg="#b4ffb4", fg="#316431")
         menu_archivo.configure(bg="#b4ffb4", fg="#316431")
         menu_edicion.configure(bg="#b4ffb4", fg="#316431")
